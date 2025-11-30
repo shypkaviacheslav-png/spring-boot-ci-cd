@@ -1,31 +1,31 @@
 pipeline {
     agent any
+
     environment {
-        // Вказуємо шлях саме до 11-ї джави, яка вже встановлена у тебе
-        JAVA_HOME = '/usr/lib/jvm/java-11-openjdk-amd64' 
+        // Примусово використовуємо Java 11 для збірки
+        JAVA_HOME = '/usr/lib/jvm/java-11-openjdk-amd64'
         PATH = "${JAVA_HOME}/bin:${PATH}"
-    triggers {
-        pollSCM '* * * * *'
     }
+
     stages {
+        stage('Check Java Version') {
+            steps {
+                // Цей крок покаже нам в логах, чи підтягнулась Java 11
+                sh 'java -version'
+            }
+        }
+
         stage('Build') {
             steps {
+                // Збираємо проект
                 sh 'gradle assemble'
             }
         }
-         stage('Test') {
+        
+        stage('Test') {
             steps {
+                // Запускаємо тести (якщо є)
                 sh 'gradle test'
-            }
-        }
-        stage('Build Docker Image') {
-            steps {
-                sh 'gradle docker'
-            }
-        }
-        stage('Run Docker Image') {
-            steps {
-                sh 'gradle dockerRun'
             }
         }
     }
